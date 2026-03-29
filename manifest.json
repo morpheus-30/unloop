@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Unloop",
+  "version": "2.0",
+  "description": "Break the scroll loop on Instagram and YouTube Shorts",
+  "permissions": ["storage", "alarms", "tabs"],
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "https://www.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background/worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://www.youtube.com/shorts*"
+      ],
+      "js": [
+        "content/observer.js",
+        "content/overlay.js",
+        "content/friction.js",
+        "content/lock.js"
+      ],
+      "css": ["styles/overlay.css"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/blur1.jpeg",
+        "images/blur2.jpeg",
+        "images/blur3.jpeg",
+        "images/blur4.jpeg",
+        "images/blur5.jpeg",
+        "images/blur6.jpeg",
+        "images/blur7.jpeg",
+        "images/blur8.jpeg",
+        "images/blur9.jpeg",
+        "images/blur10.jpeg"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

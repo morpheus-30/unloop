@@ -1,0 +1,555 @@
+/* =============================================
+   UNLOOP — Content Styles
+   All injected UI: HUD, overlays, lock, friction
+   ============================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;800&display=swap");
+
+/* ── Floating HUD ─────────────────────────── */
+#ul-hud {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483000;
+  background: rgba(12, 12, 15, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#ul-hud-icon {
+  font-family: "Syne", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #c8f060;
+}
+
+#ul-hud-sep {
+  opacity: 0.3;
+}
+
+@keyframes ul-hud-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#ul-hud.ul-hud-pulse {
+  animation: ul-hud-pulse 0.35s ease;
+}
+
+/* ── Base overlay / backdrop ──────────────── */
+#ul-overlay,
+#ul-tap-gate,
+#ul-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483640;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Syne", sans-serif;
+}
+
+.ul-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 10, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+#ul-overlay.ul-visible .ul-backdrop,
+#ul-lock.ul-visible .ul-backdrop {
+  opacity: 1;
+}
+
+/* ── Phase 2 card ─────────────────────────── */
+.ul-card {
+  position: relative;
+  z-index: 1;
+  background: #0f0f14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  width: 320px;
+  padding: 32px 28px 28px;
+  transform: translateY(28px) scale(0.96);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease;
+}
+
+#ul-overlay.ul-visible .ul-card {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+#ul-overlay.ul-dismissing .ul-card {
+  transform: translateY(16px) scale(0.95);
+  opacity: 0;
+  transition: transform 0.28s ease, opacity 0.28s ease;
+}
+
+#ul-overlay.ul-dismissing .ul-backdrop {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+/* Icon ring */
+.ul-icon-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ul-icon-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(200, 240, 96, 0.2);
+  animation: ul-ring-expand 2s ease-out infinite;
+}
+
+.ul-ring2 {
+  animation-delay: 1s;
+}
+
+@keyframes ul-ring-expand {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ul-icon-glyph {
+  font-size: 26px;
+  font-weight: 800;
+  color: #c8f060;
+  position: relative;
+  z-index: 1;
+}
+
+.ul-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #f0ede8;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.ul-body {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "DM Mono", monospace;
+  margin-bottom: 16px;
+}
+
+/* Stats row */
+.ul-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+}
+
+.ul-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ul-stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #c8f060;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.ul-stat-label {
+  font-size: 10px;
+  font-family: "DM Mono", monospace;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.5px;
+}
+
+.ul-stat-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Buttons */
+.ul-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ul-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  font-family: "Syne", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s, opacity 0.15s;
+  letter-spacing: -0.2px;
+}
+
+.ul-btn:active {
+  transform: scale(0.97);
+}
+
+.ul-btn-break {
+  background: #c8f060;
+  color: #0c0c0f;
+}
+
+.ul-btn-break:hover {
+  opacity: 0.9;
+}
+
+.ul-btn-continue {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ul-btn-continue:hover {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ul-btn-icon {
+  font-size: 15px;
+}
+
+/* ── Phase 3 friction banner ─────────────── */
+#ul-friction-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-80px);
+  z-index: 2147483500;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 100px;
+  padding: 9px 16px 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "DM Mono", monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#ul-friction-banner.ul-fb-visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.ul-fb-icon {
+  font-size: 14px;
+}
+
+.ul-fb-text strong {
+  color: #f59e0b;
+}
+
+.ul-fb-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  line-height: 1;
+  font-family: sans-serif;
+}
+
+.ul-fb-close:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Lag indicator ───────────────────────── */
+.ul-lag-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  z-index: 2147483500;
+  background: rgba(15, 15, 20, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: "DM Mono", monospace;
+  font-size: 13px;
+  color: #f59e0b;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+.ul-lag-indicator.ul-lag-in {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.ul-lag-indicator.ul-lag-out {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* ── Phase 4 lock screen ─────────────────── */
+#ul-lock {
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+#ul-lock.ul-visible {
+  opacity: 1;
+}
+#ul-lock.ul-dismissing {
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+.ul-lock-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 10, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.ul-lock-card {
+  position: relative;
+  z-index: 1;
+  background: #0f0f14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  width: 340px;
+  padding: 36px 28px 28px;
+  text-align: center;
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.35s ease;
+}
+
+#ul-lock.ul-visible .ul-lock-card {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Circular ring */
+.ul-lock-icon-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ul-lock-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ul-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 4;
+}
+
+.ul-ring-progress {
+  fill: none;
+  stroke: #ef4444;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+
+.ul-lock-glyph {
+  font-size: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.ul-lock-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f0ede8;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.ul-lock-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "DM Mono", monospace;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.ul-lock-sub strong {
+  color: #ef4444;
+}
+
+.ul-lock-timer {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: "DM Mono", monospace;
+  color: #ef4444;
+  letter-spacing: -2px;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.ul-lock-hint {
+  font-size: 11px;
+  font-family: "DM Mono", monospace;
+  color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+.ul-lock-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ul-ls-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ul-ls-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: -1px;
+}
+
+.ul-ls-label {
+  font-size: 9px;
+  font-family: "DM Mono", monospace;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#ul-blur-bar {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2147483500;
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 0;
+  min-width: 260px;
+  overflow: hidden;
+}
+
+.ul-bar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 18px; /* padding only on the text/bar section */
+}
+
+.ul-bar-message {
+  font-family: "Syne", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #b30f0f;
+  text-align: center;
+}
+
+.ul-bar-text {
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+.ul-bar-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ul-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #c8f060;
+  border-radius: 2px;
+}
+
+.ul-bar-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px 8px 0 0;
+}
