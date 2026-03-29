@@ -139,4 +139,3 @@ To change the cooldown duration, edit `COOLDOWN_MINUTES` in `content/lock.js`.
 - `chrome.tabs` for tab-level mute
 - `WeakSet` for deduplication of counted elements
 - No external dependencies — vanilla JS only
-# unloop
