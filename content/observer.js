@@ -25,20 +25,25 @@ let itemCount = 0;
 let currentPhase = 1;
 let sessionStart = Date.now();
 const seenElements = new WeakSet();
-let firstReelHandled = false;
-let initialLoadLocked = false;
+const seenVideos = new Set();
+const seenUrls = new Set();
 
 // Fallback selector chains — tries each until one matches
 const SELECTOR_CHAINS = {
   "instagram.com": ["div.xp9pnto", "div.xyamay9", "div.x1qjc9v5"],
-  "youtube.com": ["ytd-reel-video-renderer", "ytd-short-video-renderer"],
 };
+
+function getPlatform() {
+  const host = location.hostname;
+  if (host.includes("instagram.com")) return "instagram";
+  if (host.includes("youtube.com")) return "youtube";
+  return null;
+}
 
 function isReelsPage() {
   const path = location.pathname;
   const host = location.hostname.replace("www.", "");
   if (host === "instagram.com") return path.startsWith("/reels");
-  if (host === "youtube.com") return path.startsWith("/shorts");
   return false;
 }
 
@@ -166,19 +171,83 @@ function observeItems() {
   });
 }
 
+function startYouTubeTracking() {
+  let lastUrl = location.href;
+
+  function processVideo(video) {
+    if (!video || !video.currentSrc) return;
+
+    const url = location.href;
+
+    if (!url.includes("/shorts")) return;
+
+    // prevent scroll-up duplication
+    if (seenUrls.has(url)) return;
+    seenUrls.add(url);
+
+    // prevent reload duplication
+    if (seenVideos.has(video.currentSrc)) return;
+    seenVideos.add(video.currentSrc);
+
+    itemCount++;
+    console.log("[Unloop][YT] counted:", itemCount);
+
+    if (itemCount > THRESHOLDS.deep && itemCount <= THRESHOLDS.lock) {
+      window.__ul_onReelChange?.();
+    }
+
+    saveToStorage();
+    evaluatePhase();
+  }
+
+  function attachVideoObserver() {
+    const video = document.querySelector("ytd-reel-video-renderer video");
+    if (!video) return;
+
+    // initial
+    processVideo(video);
+
+    // observe src changes (🔥 key improvement)
+    const obs = new MutationObserver(() => {
+      processVideo(video);
+    });
+
+    obs.observe(video, {
+      attributes: true,
+      attributeFilter: ["src"],
+    });
+  }
+
+  // watch URL changes
+  setInterval(() => {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+
+      setTimeout(() => {
+        attachVideoObserver();
+      }, 100); // minimal delay
+    }
+  }, 200);
+
+  // initial load
+  if (location.pathname.startsWith("/shorts")) {
+    setTimeout(attachVideoObserver, 300);
+  }
+}
+
 let mutationTimer = null;
 const mutationObs = new MutationObserver(() => {
   clearTimeout(mutationTimer);
   mutationTimer = setTimeout(observeItems, 120);
 });
-mutationObs.observe(document.body, { childList: true, subtree: true });
-observeItems();
 
 window.__ul_getStats = getStats;
 window.__ul_resetCount = () => {
   itemCount = 0;
   currentPhase = 1;
   sessionStart = Date.now();
+  seenVideos.clear();
+  seenUrls.clear();
   chrome.storage.local.set({
     ul_session_count: 0,
     ul_session_start: sessionStart,
@@ -247,3 +316,12 @@ chrome.storage.local.get(["ul_session_count", "ul_session_start"], (data) => {
 
   if (data.ul_session_start) sessionStart = data.ul_session_start;
 });
+
+const platform = getPlatform();
+
+if (platform === "instagram") {
+  observeItems();
+  mutationObs.observe(document.body, { childList: true, subtree: true });
+} else if (platform === "youtube") {
+  startYouTubeTracking();
+}
