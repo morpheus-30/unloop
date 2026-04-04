@@ -43,6 +43,11 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "assets/fonts/dm-mono-400.ttf",
+        "assets/fonts/dm-mono-500.ttf",
+        "assets/fonts/syne-400.ttf",
+        "assets/fonts/syne-600.ttf",
+        "assets/fonts/syne-800.ttf",
         "images/blur1.jpeg",
         "images/blur2.jpeg",
         "images/blur3.jpeg",
@@ -54,7 +59,10 @@
         "images/blur9.jpeg",
         "images/blur10.jpeg"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://www.youtube.com/*"
+      ]
     }
   ]
 }

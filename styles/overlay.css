@@ -3,7 +3,45 @@
    All injected UI: HUD, overlays, lock, friction
    ============================================= */
 
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;800&display=swap");
+@font-face {
+  font-family: "DM Mono";
+  src: url("../assets/fonts/dm-mono-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("../assets/fonts/dm-mono-500.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Syne";
+  src: url("../assets/fonts/syne-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Syne";
+  src: url("../assets/fonts/syne-600.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Syne";
+  src: url("../assets/fonts/syne-800.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ── Floating HUD ─────────────────────────── */
 #ul-hud {
@@ -20,7 +58,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: "DM Mono", monospace;
+  font-family: "DM Mono", "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.55);
   pointer-events: none;
@@ -28,7 +66,7 @@
 }
 
 #ul-hud-icon {
-  font-family: "Syne", sans-serif;
+  font-family: "Syne", "Trebuchet MS", "Segoe UI", sans-serif;
   font-size: 13px;
   font-weight: 800;
   color: #c8f060;
@@ -64,7 +102,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Syne", sans-serif;
+  font-family: "Syne", "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 .ul-backdrop {
@@ -168,7 +206,7 @@
   text-align: center;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
-  font-family: "DM Mono", monospace;
+  font-family: "DM Mono", "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
   margin-bottom: 16px;
 }
 
@@ -202,7 +240,7 @@
 
 .ul-stat-label {
   font-size: 10px;
-  font-family: "DM Mono", monospace;
+  font-family: "DM Mono", "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.5px;
 }
@@ -225,7 +263,7 @@
   padding: 13px;
   border: none;
   border-radius: 12px;
-  font-family: "Syne", sans-serif;
+  font-family: "Syne", "Trebuchet MS", "Segoe UI", sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

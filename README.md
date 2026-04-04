@@ -25,7 +25,7 @@ Phase 4 → Hard limit          → Session lock + cooldown
 4. Click **Load unpacked**
 5. Select the `unloop/` folder
 
-The extension icon will appear in your toolbar. It only activates on `instagram.com/reels` and `youtube.com/shorts`.
+The extension icon will appear in your toolbar. It activates on Instagram and YouTube pages, and only shows tracking UI on `instagram.com/reels` and `youtube.com/shorts`.
 
 ---
 
@@ -54,13 +54,11 @@ unloop/
 
 Set your friction level from the popup:
 
-| Mode     | Soft interrupt | Deep friction | Best for       |
-| -------- | -------------- | ------------- | -------------- |
-| Light    | 6 reels        | 10 reels      | Casual use     |
-| Balanced | 4 reels        | 6 reels       | Default        |
-| Focus    | 2 reels        | 4 reels       | Deep work days |
-
-The lock threshold is always 60 reels regardless of mode.
+| Mode     | Soft interrupt | Deep friction | Session lock | Best for       |
+| -------- | -------------- | ------------- | ------------ | -------------- |
+| Light    | 12 reels       | 20 reels      | 80 reels     | Casual use     |
+| Balanced | 8 reels        | 14 reels      | 60 reels     | Default        |
+| Focus    | 5 reels        | 9 reels       | 40 reels     | Deep work days |
 
 ---
 
@@ -95,7 +93,7 @@ Open the extension popup any time to see:
 - Session progress bar with threshold markers
 - Today / all-time / total time stats
 - Mode selector (Light / Balanced / Focus)
-- On/off toggle
+- Current thresholds and next session shift
 
 ---
 
@@ -106,6 +104,14 @@ Open the extension popup any time to see:
 | `storage`  | Save session count, mode, lifetime stats |
 | `alarms`   | Reset today's count at midnight          |
 | `tabs`     | Mute/unmute the tab during blur friction |
+
+## Privacy
+
+- All session and stats data are stored locally in `chrome.storage.local`
+- No analytics or browsing history are sent to a remote server
+- Supported page access is used only to detect Reels and Shorts pages and show the extension UI
+
+See [PRIVACY.md](./PRIVACY.md) for a publishable privacy policy draft.
 
 ---
 
@@ -121,9 +127,9 @@ Open the extension popup any time to see:
 
 ```js
 const MODES = {
-  light: { soft: 6, deep: 10, lock: 60 },
-  balanced: { soft: 4, deep: 6, lock: 60 },
-  focus: { soft: 2, deep: 4, lock: 60 },
+  light: { soft: 12, deep: 20, lock: 80 },
+  balanced: { soft: 8, deep: 14, lock: 60 },
+  focus: { soft: 5, deep: 9, lock: 40 },
 };
 ```
 
@@ -138,4 +144,4 @@ To change the cooldown duration, edit `COOLDOWN_MINUTES` in `content/lock.js`.
 - `chrome.storage.local` for persistence
 - `chrome.tabs` for tab-level mute
 - `WeakSet` for deduplication of counted elements
-- No external dependencies — vanilla JS only
+- No remote analytics or backend services

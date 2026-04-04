@@ -4,12 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Unloop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;800&display=swap"
-      rel="stylesheet"
-    />
     <style>
+      @font-face {
+        font-family: "DM Mono";
+        src: url("../assets/fonts/dm-mono-400.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "DM Mono";
+        src: url("../assets/fonts/dm-mono-500.ttf") format("truetype");
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Syne";
+        src: url("../assets/fonts/syne-400.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Syne";
+        src: url("../assets/fonts/syne-600.ttf") format("truetype");
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Syne";
+        src: url("../assets/fonts/syne-800.ttf") format("truetype");
+        font-weight: 800;
+        font-style: normal;
+        font-display: swap;
+      }
+
       *,
       *::before,
       *::after {
@@ -31,16 +66,24 @@
         --accent2: #66d9ef;
         --warn: #f59e0b;
         --danger: #ef4444;
-        --font-head: "Syne", sans-serif;
-        --font-mono: "DM Mono", monospace;
+        --font-head: "Syne", "Trebuchet MS", "Segoe UI", sans-serif;
+        --font-mono: "DM Mono", "SFMono-Regular", "Consolas", "Liberation Mono",
+          monospace;
       }
 
       body {
         width: 320px;
         min-height: 100vh;
-        background:
-          radial-gradient(circle at top left, rgba(216, 255, 114, 0.14), transparent 34%),
-          radial-gradient(circle at top right, rgba(102, 217, 239, 0.12), transparent 28%),
+        background: radial-gradient(
+            circle at top left,
+            rgba(216, 255, 114, 0.14),
+            transparent 34%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(102, 217, 239, 0.12),
+            transparent 28%
+          ),
           linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 72%);
         color: var(--text);
         font-family: var(--font-head);
@@ -109,8 +152,11 @@
       /* Session card */
       .session-card {
         margin: 16px 16px 0;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%),
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.04),
+            transparent 28%
+          ),
           var(--surface);
         border: 1px solid var(--border);
         border-radius: 18px;
@@ -127,7 +173,12 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+        background: linear-gradient(
+          90deg,
+          var(--accent),
+          var(--accent2),
+          transparent
+        );
         opacity: 0;
         transition: opacity 0.4s;
       }
@@ -451,7 +502,7 @@
       /* Locked state overlay */
       .lock-overlay {
         display: none;
-        margin: 0 16px 16px;
+        margin: 16px 16px 16px;
         background: rgba(239, 68, 68, 0.08);
         border: 1px solid rgba(239, 68, 68, 0.25);
         border-radius: 12px;
@@ -617,7 +668,8 @@
       <div class="progress-row">
         <span class="progress-title">Session progress</span>
         <span class="progress-markers">
-          <span id="marker-soft">8</span><span id="marker-deep">14</span><span id="marker-lock">60</span>
+          <span id="marker-soft">8</span><span id="marker-deep">14</span
+          ><span id="marker-lock">60</span>
         </span>
       </div>
       <div class="progress-note" id="progress-note">
@@ -667,7 +719,9 @@
 
     <div class="info-row">
       <span class="settings-label">Current thresholds</span>
-      <span class="info-value" id="mode-summary">soft 8 · deep 14 · lock 60</span>
+      <span class="info-value" id="mode-summary"
+        >soft 8 · deep 14 · lock 60</span
+      >
     </div>
 
     <script src="popup.js"></script>
