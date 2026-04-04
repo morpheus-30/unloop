@@ -47,6 +47,35 @@ function isReelsPage() {
   return false;
 }
 
+function isYouTubeShortsPage() {
+  const host = location.hostname.replace("www.", "");
+  return host === "youtube.com" && location.pathname.startsWith("/shorts");
+}
+
+function isTrackingPage() {
+  const platform = getPlatform();
+  if (platform === "instagram") return isReelsPage();
+  if (platform === "youtube") return isYouTubeShortsPage();
+  return false;
+}
+
+function getActiveYouTubeShortVideo() {
+  const selectors = [
+    "ytd-reel-video-renderer[is-active] video",
+    "ytd-reel-video-renderer[is-active] #shorts-player video",
+    "ytd-reel-video-renderer video",
+    "#shorts-player video",
+    "video.html5-main-video",
+  ];
+
+  for (const selector of selectors) {
+    const video = document.querySelector(selector);
+    if (video?.currentSrc) return video;
+  }
+
+  return null;
+}
+
 function getElements() {
   if (!isReelsPage()) {
     console.log("[Unloop] not a reels page, skipping:", location.pathname);
@@ -85,6 +114,23 @@ function getStats() {
     estimatedSeconds,
     phase: currentPhase,
   };
+}
+
+function recalculatePhase() {
+  let newPhase = 1;
+  if (itemCount >= THRESHOLDS.lock) newPhase = 4;
+  else if (itemCount >= THRESHOLDS.deep) newPhase = 3;
+  else if (itemCount >= THRESHOLDS.soft) newPhase = 2;
+
+  currentPhase = newPhase;
+  window.dispatchEvent(new CustomEvent("ul:stats", { detail: getStats() }));
+}
+
+function applyMode(mode) {
+  const nextMode = MODES[mode] ? mode : "balanced";
+  THRESHOLDS = MODES[nextMode];
+  console.log("[Unloop] mode loaded:", nextMode);
+  recalculatePhase();
 }
 
 const observer = new IntersectionObserver(
@@ -173,24 +219,24 @@ function observeItems() {
 
 function startYouTubeTracking() {
   let lastUrl = location.href;
+  let pollTimer = null;
+  let routeHandledUrl = "";
 
-  function processVideo(video) {
-    if (!video || !video.currentSrc) return;
+  function processCurrentShort() {
+    if (!isYouTubeShortsPage()) return;
 
     const url = location.href;
+    const video = getActiveYouTubeShortVideo();
 
-    if (!url.includes("/shorts")) return;
-
-    // prevent scroll-up duplication
+    if (!video || !video.currentSrc) return;
     if (seenUrls.has(url)) return;
-    seenUrls.add(url);
-
-    // prevent reload duplication
     if (seenVideos.has(video.currentSrc)) return;
+
+    seenUrls.add(url);
     seenVideos.add(video.currentSrc);
 
     itemCount++;
-    console.log("[Unloop][YT] counted:", itemCount);
+    console.log("[Unloop][YT] counted:", itemCount, url);
 
     if (itemCount > THRESHOLDS.deep && itemCount <= THRESHOLDS.lock) {
       window.__ul_onReelChange?.();
@@ -200,39 +246,73 @@ function startYouTubeTracking() {
     evaluatePhase();
   }
 
-  function attachVideoObserver() {
-    const video = document.querySelector("ytd-reel-video-renderer video");
-    if (!video) return;
-
-    // initial
-    processVideo(video);
-
-    // observe src changes (🔥 key improvement)
-    const obs = new MutationObserver(() => {
-      processVideo(video);
-    });
-
-    obs.observe(video, {
-      attributes: true,
-      attributeFilter: ["src"],
-    });
+  function stopPolling() {
+    if (!pollTimer) return;
+    clearInterval(pollTimer);
+    pollTimer = null;
   }
 
-  // watch URL changes
-  setInterval(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
+  function scheduleCurrentShortProcessing(forceRestart = false) {
+    updateHUDVisibility();
 
-      setTimeout(() => {
-        attachVideoObserver();
-      }, 100); // minimal delay
+    if (!isYouTubeShortsPage()) {
+      stopPolling();
+      return;
     }
-  }, 200);
 
-  // initial load
-  if (location.pathname.startsWith("/shorts")) {
-    setTimeout(attachVideoObserver, 300);
+    if (pollTimer && !forceRestart) return;
+
+    stopPolling();
+    let attempts = 0;
+    pollTimer = setInterval(() => {
+      attempts++;
+      const video = getActiveYouTubeShortVideo();
+      if ((video && video.currentSrc) || attempts > 60) {
+        stopPolling();
+        processCurrentShort();
+      }
+    }, 150);
   }
+
+  function handleRouteChange(force = false) {
+    const currentUrl = location.href;
+    if (!force && currentUrl === routeHandledUrl) return;
+    routeHandledUrl = currentUrl;
+    scheduleCurrentShortProcessing();
+  }
+
+  // Watch for ANY DOM change — catches SPA navigations reliably
+  const ytMutationObs = new MutationObserver(() => {
+    const currentUrl = location.href;
+
+    // URL changed — new short loaded
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+      handleRouteChange();
+      return;
+    }
+
+    if (isYouTubeShortsPage() && !seenUrls.has(currentUrl)) {
+      scheduleCurrentShortProcessing();
+    }
+  });
+
+  ytMutationObs.observe(document.body, { childList: true, subtree: true });
+
+  const handleYouTubeNavigationEvent = () => handleRouteChange(true);
+
+  window.addEventListener("yt-navigate-finish", handleYouTubeNavigationEvent);
+  document.addEventListener("yt-navigate-finish", handleYouTubeNavigationEvent);
+  window.addEventListener("yt-page-data-updated", handleYouTubeNavigationEvent);
+  document.addEventListener(
+    "yt-page-data-updated",
+    handleYouTubeNavigationEvent
+  );
+  window.addEventListener("popstate", handleYouTubeNavigationEvent);
+  window.addEventListener("hashchange", handleYouTubeNavigationEvent);
+
+  // Handle the initial page state and direct /shorts loads.
+  handleRouteChange(true);
 }
 
 let mutationTimer = null;
@@ -248,6 +328,8 @@ window.__ul_resetCount = () => {
   sessionStart = Date.now();
   seenVideos.clear();
   seenUrls.clear();
+  window.dispatchEvent(new CustomEvent("ul:stats", { detail: getStats() }));
+  updateHUDVisibility();
   chrome.storage.local.set({
     ul_session_count: 0,
     ul_session_start: sessionStart,
@@ -265,30 +347,48 @@ function injectHUD() {
     <span id="ul-hud-time">~0s</span>
   `;
   document.body.appendChild(hud);
+  updateHUDVisibility();
 
   window.addEventListener("ul:stats", (e) => {
     const { count, estimatedTime } = e.detail;
-    document.getElementById("ul-hud-count").textContent = `${count} reel${
+    const countEl = document.getElementById("ul-hud-count");
+    const timeEl = document.getElementById("ul-hud-time");
+    if (!countEl || !timeEl) return;
+
+    countEl.textContent = `${count} reel${
       count !== 1 ? "s" : ""
     }`;
-    document.getElementById("ul-hud-time").textContent = `~${estimatedTime}`;
+    timeEl.textContent = `~${estimatedTime}`;
+    updateHUDVisibility();
     hud.classList.remove("ul-hud-pulse");
     void hud.offsetWidth;
     hud.classList.add("ul-hud-pulse");
   });
 }
 
-if (document.body) injectHUD();
-else document.addEventListener("DOMContentLoaded", injectHUD);
-chrome.storage.local.get(["ul_session_count", "ul_session_start"], (data) => {
+function updateHUDVisibility() {
+  const hud = document.getElementById("ul-hud");
+  if (!hud) return;
+  hud.style.display = isTrackingPage() ? "flex" : "none";
+}
+
+if (document.body) {
+  injectHUD();
+  updateHUDVisibility();
+} else {
+  document.addEventListener("DOMContentLoaded", () => {
+    injectHUD();
+    updateHUDVisibility();
+  });
+}
+chrome.storage.local.get(
+  ["ul_session_count", "ul_session_start", "ul_mode"],
+  (data) => {
   const SESSION_EXPIRY_MS = 2 * 60 * 60 * 1000;
   const now = Date.now();
   const savedStart = data.ul_session_start || 0;
 
-  if (data.ul_mode && MODES[data.ul_mode]) {
-    THRESHOLDS = MODES[data.ul_mode];
-    console.log("[Unloop] mode loaded:", data.ul_mode);
-  }
+  applyMode(data.ul_mode);
 
   if (now - savedStart > SESSION_EXPIRY_MS) {
     chrome.storage.local.set({ ul_session_count: 0, ul_session_start: now });
@@ -315,6 +415,11 @@ chrome.storage.local.get(["ul_session_count", "ul_session_start"], (data) => {
   }
 
   if (data.ul_session_start) sessionStart = data.ul_session_start;
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "local") return;
+  if (changes.ul_mode) applyMode(changes.ul_mode.newValue);
 });
 
 const platform = getPlatform();

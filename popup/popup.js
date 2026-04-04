@@ -1,6 +1,13 @@
 // popup.js
 
 const AVG_SECS = 18;
+const MODES = {
+  light: { soft: 12, deep: 20, lock: 80, label: "Light" },
+  balanced: { soft: 8, deep: 14, lock: 60, label: "Balanced" },
+  focus: { soft: 5, deep: 9, lock: 40, label: "Focus" },
+};
+
+let currentMode = "balanced";
 
 function formatTime(seconds) {
   if (seconds < 60) return `${Math.round(seconds)}s`;
@@ -17,7 +24,102 @@ function formatCountdown(ms) {
   return `${m}:${sec}`;
 }
 
-function updatePhaseUI(count) {
+function pluralize(count, singular, plural = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function getModeConfig(mode) {
+  return MODES[mode] || MODES.balanced;
+}
+
+function updateThresholdUI(mode) {
+  const { soft, deep, lock } = getModeConfig(mode);
+  document.getElementById("marker-soft").textContent = soft;
+  document.getElementById("marker-deep").textContent = deep;
+  document.getElementById("marker-lock").textContent = lock;
+  document.getElementById(
+    "mode-summary"
+  ).textContent = `soft ${soft} · deep ${deep} · lock ${lock}`;
+
+  document.getElementById("label-soft").style.left = `${(soft / lock) * 100}%`;
+  document.getElementById("label-deep").style.left = `${(deep / lock) * 100}%`;
+  document.getElementById("label-lock").style.left = "100%";
+}
+
+function getNextThreshold(count, mode, isLocked) {
+  const { soft, deep, lock } = getModeConfig(mode);
+
+  if (isLocked || count >= lock) {
+    return { label: "lock active", remaining: 0 };
+  }
+
+  if (count < soft) {
+    return { label: `soft at ${soft}`, remaining: soft - count };
+  }
+
+  if (count < deep) {
+    return { label: `deep at ${deep}`, remaining: deep - count };
+  }
+
+  return { label: `lock at ${lock}`, remaining: lock - count };
+}
+
+function updateSessionSummary(count, mode, isLocked) {
+  const { lock, label } = getModeConfig(mode);
+  const progressPct = Math.min(100, Math.round((count / lock) * 100));
+  const next = getNextThreshold(count, mode, isLocked);
+
+  const titleEl = document.getElementById("session-title");
+  const subtitleEl = document.getElementById("session-subtitle");
+  const badgeEl = document.getElementById("session-badge");
+  const progressNoteEl = document.getElementById("progress-note");
+  const nextThresholdEl = document.getElementById("next-threshold");
+  const remainingEl = document.getElementById("remaining-count");
+
+  badgeEl.textContent = `${label.toLowerCase()} mode`;
+  progressNoteEl.textContent = `${progressPct}% of this session cap used`;
+  nextThresholdEl.textContent = next.label;
+
+  if (isLocked) {
+    titleEl.textContent = "Cooldown in effect";
+    subtitleEl.textContent =
+      "The session lock is active. The counter will reset when the cooldown ends.";
+    remainingEl.textContent = "session paused";
+    return;
+  }
+
+  if (count === 0) {
+    titleEl.textContent = "Holding steady";
+    subtitleEl.textContent =
+      "Fresh session. Thresholds will adapt to your selected mode.";
+    remainingEl.textContent = `${lock} to lock`;
+    return;
+  }
+
+  if (count < getModeConfig(mode).soft) {
+    titleEl.textContent = "Still in the clear";
+    subtitleEl.textContent =
+      "Light use so far. The first interruption has not kicked in yet.";
+  } else if (count < getModeConfig(mode).deep) {
+    titleEl.textContent = "Awareness mode";
+    subtitleEl.textContent =
+      "You crossed the soft threshold. The next phase will add stronger friction.";
+  } else if (count < lock) {
+    titleEl.textContent = "Friction is active";
+    subtitleEl.textContent =
+      "You are in the deep session zone now. Each extra reel is closer to a lock.";
+  } else {
+    titleEl.textContent = "Session limit reached";
+    subtitleEl.textContent =
+      "You hit the session cap. The cooldown should now block further scrolling.";
+  }
+
+  remainingEl.textContent =
+    next.remaining > 0 ? `${pluralize(next.remaining, "reel")} left` : "now";
+}
+
+function updatePhaseUI(count, mode, isLocked) {
+  const { soft, deep, lock } = getModeConfig(mode);
   const phases = [
     { label: "Light usage", dotClass: "active" },
     { label: "Soft interrupt", dotClass: "warn" },
@@ -26,9 +128,9 @@ function updatePhaseUI(count) {
   ];
 
   let phase = 0;
-  if (count >= 60) phase = 3;
-  else if (count >= 40) phase = 2;
-  else if (count >= 20) phase = 1;
+  if (isLocked || count >= lock) phase = 3;
+  else if (count >= deep) phase = 2;
+  else if (count >= soft) phase = 1;
 
   document.getElementById("phase-text").textContent = phases[phase].label;
 
@@ -40,22 +142,26 @@ function updatePhaseUI(count) {
   }
 
   // Progress bar
-  const pct = Math.min(100, (count / 60) * 100);
+  const pct = Math.min(100, (count / lock) * 100);
   const fill = document.getElementById("progress-fill");
   fill.style.width = `${pct}%`;
   fill.className = "progress-fill";
-  if (count >= 40) fill.classList.add("danger");
-  else if (count >= 20) fill.classList.add("warn");
+  if (isLocked || count >= lock) fill.classList.add("danger");
+  else if (count >= deep) fill.classList.add("danger");
+  else if (count >= soft) fill.classList.add("warn");
 
   // Big numbers color
   const countEl = document.getElementById("pop-count");
   const timeEl = document.getElementById("pop-time");
   countEl.className = "big-num";
   timeEl.className = "big-num";
-  if (count >= 40) {
+  if (isLocked || count >= lock) {
     countEl.classList.add("danger");
     timeEl.classList.add("danger");
-  } else if (count >= 20) {
+  } else if (count >= deep) {
+    countEl.classList.add("danger");
+    timeEl.classList.add("danger");
+  } else if (count >= soft) {
     countEl.classList.add("warn");
     timeEl.classList.add("warn");
   }
@@ -67,6 +173,7 @@ function render(data) {
   const todayCount = data.ul_today_count || 0;
   const totalSecs = data.ul_total_seconds || 0;
   const isLocked = data.ul_locked && data.ul_unlock_at > Date.now();
+  currentMode = MODES[data.ul_mode] ? data.ul_mode : "balanced";
 
   // Session stats
   document.getElementById("pop-count").textContent = count;
@@ -88,11 +195,14 @@ function render(data) {
   }
 
   // Session card highlight
-  if (count > 0)
-    document.getElementById("session-card").classList.add("has-data");
+  document
+    .getElementById("session-card")
+    .classList.toggle("has-data", count > 0);
 
   // Phase UI
-  updatePhaseUI(count);
+  updateThresholdUI(currentMode);
+  updatePhaseUI(count, currentMode, isLocked);
+  updateSessionSummary(count, currentMode, isLocked);
 
   // Lifetime
   document.getElementById("lt-today").textContent = todayCount;
@@ -128,17 +238,6 @@ chrome.storage.local.get(null, render);
 // Live updates every 2s while popup is open
 setInterval(() => chrome.storage.local.get(null, render), 2000);
 
-// Toggle handler
-document.getElementById("main-toggle").addEventListener("change", (e) => {
-  chrome.storage.local.set({ ul_enabled: e.target.checked });
-});
-
-// Restore toggle state
-chrome.storage.local.get("ul_enabled", (data) => {
-  const enabled = data.ul_enabled !== false;
-  document.getElementById("main-toggle").checked = enabled;
-});
-
 // Mode buttons
 const modeBtns = {
   light: document.getElementById("mode-light"),
@@ -147,12 +246,13 @@ const modeBtns = {
 };
 
 function setMode(mode) {
+  currentMode = MODES[mode] ? mode : "balanced";
   // Update button styles
   Object.keys(modeBtns).forEach((k) => {
-    modeBtns[k].classList.toggle("active", k === mode);
+    modeBtns[k].classList.toggle("active", k === currentMode);
   });
-  // Save to storage — observer.js will pick this up on next page load
-  chrome.storage.local.set({ ul_mode: mode });
+  updateThresholdUI(currentMode);
+  chrome.storage.local.set({ ul_mode: currentMode });
 }
 
 // Set active mode from storage on popup open

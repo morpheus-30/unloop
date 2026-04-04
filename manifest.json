@@ -15,7 +15,7 @@
     {
       "matches": [
         "https://www.instagram.com/*",
-        "https://www.youtube.com/shorts*"
+        "https://www.youtube.com/*"
       ],
       "js": [
         "content/observer.js",

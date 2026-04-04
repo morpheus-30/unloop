@@ -19,15 +19,16 @@
       }
 
       :root {
-        --bg: #0c0c0f;
-        --surface: #141418;
-        --surface2: #1c1c22;
+        --bg: #090b0f;
+        --bg-soft: #10141b;
+        --surface: rgba(20, 24, 30, 0.92);
+        --surface2: #1b212b;
         --border: rgba(255, 255, 255, 0.07);
         --border2: rgba(255, 255, 255, 0.12);
         --text: #f0ede8;
         --muted: #6b6a72;
-        --accent: #c8f060;
-        --accent2: #8b5cf6;
+        --accent: #d8ff72;
+        --accent2: #66d9ef;
         --warn: #f59e0b;
         --danger: #ef4444;
         --font-head: "Syne", sans-serif;
@@ -36,7 +37,11 @@
 
       body {
         width: 320px;
-        background: var(--bg);
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(216, 255, 114, 0.14), transparent 34%),
+          radial-gradient(circle at top right, rgba(102, 217, 239, 0.12), transparent 28%),
+          linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 72%);
         color: var(--text);
         font-family: var(--font-head);
         overflow: hidden;
@@ -44,7 +49,7 @@
 
       /* Header */
       .header {
-        padding: 20px 20px 0;
+        padding: 18px 20px 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -57,10 +62,10 @@
       }
 
       .logo-mark {
-        width: 28px;
-        height: 28px;
-        background: var(--accent);
-        border-radius: 7px;
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, var(--accent), #9dbf3d);
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -68,6 +73,7 @@
         font-weight: 800;
         color: #0c0c0f;
         letter-spacing: -1px;
+        box-shadow: 0 10px 24px rgba(216, 255, 114, 0.18);
       }
 
       .logo-name {
@@ -80,11 +86,12 @@
       .status-pill {
         font-family: var(--font-mono);
         font-size: 10px;
-        padding: 3px 8px;
+        padding: 4px 9px;
         border-radius: 20px;
         border: 1px solid var(--border2);
         color: var(--muted);
         letter-spacing: 0.5px;
+        backdrop-filter: blur(8px);
       }
 
       .status-pill.active {
@@ -102,12 +109,15 @@
       /* Session card */
       .session-card {
         margin: 16px 16px 0;
-        background: var(--surface);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 28%),
+          var(--surface);
         border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 16px;
+        border-radius: 18px;
+        padding: 18px;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
       }
 
       .session-card::before {
@@ -116,8 +126,8 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--accent), transparent);
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
         opacity: 0;
         transition: opacity 0.4s;
       }
@@ -132,7 +142,40 @@
         color: var(--muted);
         letter-spacing: 1px;
         text-transform: uppercase;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
+      }
+
+      .session-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .session-title {
+        font-size: 22px;
+        line-height: 1;
+        letter-spacing: -0.8px;
+      }
+
+      .session-subtitle {
+        margin-top: 6px;
+        font-size: 11px;
+        color: rgba(240, 237, 232, 0.65);
+        font-family: var(--font-mono);
+        line-height: 1.45;
+      }
+
+      .session-badge {
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(216, 255, 114, 0.18);
+        background: rgba(216, 255, 114, 0.08);
+        color: var(--accent);
+        font-size: 10px;
+        font-family: var(--font-mono);
+        white-space: nowrap;
       }
 
       .big-stats {
@@ -144,7 +187,11 @@
       .big-stat {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       .big-num {
@@ -171,13 +218,47 @@
         letter-spacing: 0.3px;
       }
 
+      .session-meta {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .meta-pill {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .meta-label {
+        display: block;
+        font-size: 9px;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .meta-value {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--text);
+        font-family: var(--font-mono);
+      }
+
       /* Phase indicator */
       .phase-bar {
         margin: 12px 16px 0;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px 14px;
+        border-radius: 14px;
+        padding: 12px 14px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -225,13 +306,17 @@
       /* Progress track */
       .progress-section {
         margin: 12px 16px 0;
+        padding: 12px 14px 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
       }
 
       .progress-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
       }
 
       .progress-title {
@@ -249,27 +334,34 @@
         color: var(--muted);
       }
 
+      .progress-note {
+        margin-bottom: 10px;
+        font-size: 11px;
+        color: rgba(240, 237, 232, 0.62);
+        font-family: var(--font-mono);
+      }
+
       .progress-track {
-        height: 4px;
-        background: var(--surface);
-        border-radius: 2px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
         overflow: visible;
         position: relative;
       }
 
       .progress-fill {
         height: 100%;
-        border-radius: 2px;
-        background: var(--accent);
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent), #b4db53);
         transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         position: relative;
       }
 
       .progress-fill.warn {
-        background: var(--warn);
+        background: linear-gradient(90deg, #f7be38, var(--warn));
       }
       .progress-fill.danger {
-        background: var(--danger);
+        background: linear-gradient(90deg, #ff7d7d, var(--danger));
       }
 
       .progress-fill::after {
@@ -277,16 +369,17 @@
         position: absolute;
         right: -1px;
         top: -2px;
-        width: 8px;
-        height: 8px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         background: inherit;
+        box-shadow: 0 0 0 3px rgba(9, 11, 15, 0.75);
       }
 
       .threshold-marks {
         position: relative;
-        height: 10px;
-        margin-top: 3px;
+        height: 12px;
+        margin-top: 6px;
       }
 
       .t-mark {
@@ -299,7 +392,7 @@
 
       /* Lifetime stats */
       .lifetime {
-        margin: 12px 16px 0;
+        margin: 14px 16px 0;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 8px;
@@ -308,8 +401,8 @@
       .lt-card {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px;
+        border-radius: 14px;
+        padding: 12px 10px;
         text-align: center;
       }
 
@@ -328,8 +421,8 @@
         letter-spacing: 0.3px;
       }
 
-      /* Settings row */
-      .settings-row {
+      /* Info row */
+      .info-row {
         margin: 12px 16px 16px;
         display: flex;
         align-items: center;
@@ -337,7 +430,8 @@
         padding: 10px 14px;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 14px;
+        gap: 14px;
       }
 
       .settings-label {
@@ -346,47 +440,12 @@
         font-family: var(--font-mono);
       }
 
-      .toggle {
-        position: relative;
-        width: 36px;
-        height: 20px;
-      }
-
-      .toggle input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      .toggle-slider {
-        position: absolute;
-        inset: 0;
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      .toggle-slider::before {
-        content: "";
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        left: 2px;
-        top: 2px;
-        background: var(--muted);
-        border-radius: 50%;
-        transition: 0.2s;
-      }
-
-      .toggle input:checked + .toggle-slider {
-        background: rgba(200, 240, 96, 0.15);
-        border-color: var(--accent);
-      }
-      .toggle input:checked + .toggle-slider::before {
-        transform: translateX(16px);
-        background: var(--accent);
+      .info-value {
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.4px;
+        text-align: right;
       }
 
       /* Locked state overlay */
@@ -435,7 +494,8 @@
       .phase-bar,
       .progress-section,
       .lifetime,
-      .settings-row {
+      .mode-row,
+      .info-row {
         animation: fadeIn 0.3s ease both;
       }
 
@@ -448,19 +508,22 @@
       .lifetime {
         animation-delay: 0.15s;
       }
-      .settings-row {
+      .mode-row {
         animation-delay: 0.2s;
+      }
+      .info-row {
+        animation-delay: 0.25s;
       }
 
       .mode-row {
-        margin: 0 16px 8px;
+        margin: 16px 16px 8px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 10px 14px;
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 14px;
       }
 
       .mode-btns {
@@ -469,8 +532,8 @@
       }
 
       .mode-btn {
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 6px 10px;
+        border-radius: 8px;
         border: 1px solid var(--border2);
         background: transparent;
         color: var(--muted);
@@ -487,7 +550,7 @@
       }
 
       .mode-btn.active {
-        background: rgba(200, 240, 96, 0.12);
+        background: rgba(216, 255, 114, 0.12);
         border-color: var(--accent);
         color: var(--accent);
       }
@@ -505,6 +568,15 @@
     <!-- Session card -->
     <div class="session-card" id="session-card">
       <div class="session-label">This session</div>
+      <div class="session-head">
+        <div>
+          <div class="session-title" id="session-title">Holding steady</div>
+          <div class="session-subtitle" id="session-subtitle">
+            Fresh session. Thresholds will adapt to your selected mode.
+          </div>
+        </div>
+        <div class="session-badge" id="session-badge">balanced</div>
+      </div>
       <div class="big-stats">
         <div class="big-stat">
           <div class="big-num" id="pop-count">0</div>
@@ -513,6 +585,16 @@
         <div class="big-stat">
           <div class="big-num" id="pop-time">~0s</div>
           <div class="big-unit">time spent</div>
+        </div>
+      </div>
+      <div class="session-meta">
+        <div class="meta-pill">
+          <span class="meta-label">Next Shift</span>
+          <span class="meta-value" id="next-threshold">soft at 8</span>
+        </div>
+        <div class="meta-pill">
+          <span class="meta-label">Remaining</span>
+          <span class="meta-value" id="remaining-count">60 to lock</span>
         </div>
       </div>
     </div>
@@ -535,16 +617,19 @@
       <div class="progress-row">
         <span class="progress-title">Session progress</span>
         <span class="progress-markers">
-          <span>20</span><span>40</span><span>60</span>
+          <span id="marker-soft">8</span><span id="marker-deep">14</span><span id="marker-lock">60</span>
         </span>
+      </div>
+      <div class="progress-note" id="progress-note">
+        0% of this session cap used
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
       </div>
       <div class="threshold-marks">
-        <span class="t-mark" style="left: 33.3%">soft</span>
-        <span class="t-mark" style="left: 66.6%">deep</span>
-        <span class="t-mark" style="left: 100%">lock</span>
+        <span class="t-mark" id="label-soft" style="left: 13.3%">soft</span>
+        <span class="t-mark" id="label-deep" style="left: 23.3%">deep</span>
+        <span class="t-mark" id="label-lock" style="left: 100%">lock</span>
       </div>
     </div>
 
@@ -580,13 +665,9 @@
       </div>
     </div>
 
-    <!-- Settings toggle -->
-    <div class="settings-row">
-      <span class="settings-label">Unloop active</span>
-      <label class="toggle">
-        <input type="checkbox" id="main-toggle" checked />
-        <span class="toggle-slider"></span>
-      </label>
+    <div class="info-row">
+      <span class="settings-label">Current thresholds</span>
+      <span class="info-value" id="mode-summary">soft 8 · deep 14 · lock 60</span>
     </div>
 
     <script src="popup.js"></script>
