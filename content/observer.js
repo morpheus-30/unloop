@@ -78,7 +78,6 @@ function getActiveYouTubeShortVideo() {
 
 function getElements() {
   if (!isReelsPage()) {
-    console.log("[Unloop] not a reels page, skipping:", location.pathname);
     return { els: [], sel: null };
   }
 
@@ -88,14 +87,10 @@ function getElements() {
   for (const sel of chains) {
     const els = document.querySelectorAll(sel);
     if (els.length > 0) {
-      console.log("[Unloop] using selector:", sel, `(${els.length} found)`);
       return { els, sel };
     }
   }
 
-  console.warn(
-    "[Unloop] no selector matched. Open console and run the debug script."
-  );
   return { els: [], sel: null };
 }
 
@@ -129,7 +124,6 @@ function recalculatePhase() {
 function applyMode(mode) {
   const nextMode = MODES[mode] ? mode : "balanced";
   THRESHOLDS = MODES[nextMode];
-  console.log("[Unloop] mode loaded:", nextMode);
   recalculatePhase();
 }
 
@@ -139,7 +133,6 @@ const observer = new IntersectionObserver(
       if (!entry.isIntersecting) return;
       if (entry.intersectionRatio < 0.8) return;
       if (seenElements.has(entry.target)) return;
-      if (Date.now() <= (window.__ul_ignoreReelsUntil || 0)) return;
 
       const video = entry.target.querySelector("video");
 
@@ -157,8 +150,6 @@ const observer = new IntersectionObserver(
       if (itemCount > THRESHOLDS.deep && itemCount <= THRESHOLDS.lock) {
         window.__ul_onReelChange?.();
       }
-
-      console.log("[Unloop] reel counted:", itemCount, video.currentSrc);
 
       saveToStorage();
       evaluatePhase();
@@ -236,7 +227,6 @@ function startYouTubeTracking() {
     seenVideos.add(video.currentSrc);
 
     itemCount++;
-    console.log("[Unloop][YT] counted:", itemCount, url);
 
     if (itemCount > THRESHOLDS.deep && itemCount <= THRESHOLDS.lock) {
       window.__ul_onReelChange?.();

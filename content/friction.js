@@ -2,14 +2,10 @@ let frictionActive = false;
 let listenersAttached = false;
 let isBlurActive = false;
 let blurTimeout = null;
-let reelsSinceLastFriction = 0;
-let ignoreUntil = 0;
-let wasMuted = false;
 
 window.__ul_startFriction = function (stats) {
   if (frictionActive) return;
   frictionActive = true;
-  reelsSinceLastFriction = 0;
   showFrictionBanner(stats);
   attachInputBlockers();
 };
@@ -22,10 +18,7 @@ window.__ul_onReelChange = function () {
   const stats = window.__ul_getStats?.() || { count: 0, estimatedTime: "0s" };
 
   if (Math.random() < 0.5) {
-    console.log("[Unloop] blur triggered");
     applyBlurAndBlock(stats);
-  } else {
-    console.log("[Unloop] free reel");
   }
 };
 
@@ -152,8 +145,6 @@ function removeBlur() {
   // Unmute
   // Unmute tab
   chrome.runtime.sendMessage({ action: "unmuteTab" });
-
-  ignoreUntil = 0;
   document.getElementById("ul-blur-bar")?.remove();
 }
 

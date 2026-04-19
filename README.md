@@ -117,7 +117,7 @@ See [PRIVACY.md](./PRIVACY.md) for a publishable privacy policy draft.
 
 ## Known limitations
 
-- Instagram's CSS class names (like `xp9pnto`) occasionally change when Instagram pushes frontend updates. If counting stops working, open DevTools console on the Reels page and run the debug selector script to find the new class.
+- Instagram's CSS class names (like `xp9pnto`) occasionally change when Instagram pushes frontend updates. If counting stops working, update the selector chain in `content/observer.js`.
 - YouTube Shorts support uses `ytd-reel-video-renderer` — this is stable but may need updating after major YouTube redesigns.
 - The extension cannot detect reels watched before it was installed.
 
