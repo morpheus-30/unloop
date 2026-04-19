@@ -8,9 +8,9 @@ Unloop is a Chrome extension that helps users reduce compulsive short-form video
 
 Unloop does not collect personal information for transmission to a server.
 
-The extension processes limited browsing activity on supported pages only:
+The extension processes information from supported pages only (Instagram Reels and YouTube Shorts) to detect video playback and scrolling behavior.
 
-- current page URL and path on `instagram.com` and `youtube.com`
+- page context required to detect Reels and Shorts views
 - whether the active page is a Reels or Shorts view
 - page video state needed to count watched items in the current session
 
@@ -59,4 +59,5 @@ Data remains on the user's device until:
 
 ## Contact
 
-If you publish Unloop, replace this section with your real support contact email or website before submitting to the Chrome Web Store.
+For support or questions, contact:
+nakshatrachandna7@gmail.com
